@@ -38,7 +38,9 @@ platform :ios do
     # build app
     build_app(
       silent: true,
-      suppress_xcode_output: true
+      suppress_xcode_output: true,
+      include_symbols: true,
+      include_bitcode: true
     )
   end
 
