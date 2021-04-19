@@ -25,9 +25,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Runs a single command using the runners shell
       - name: Run
         run: |
           echo secret=${{ secrets.TEST_SECRET }}
+          which ruby
+          which gem
+          which bundle
+          which fastlane
           echo ruby version = `ruby --version`
-          
+          echo gem version = `gem --version`
+          echo bundler version = `bundle --version`
+          cd ios
+          bundle exec which fastlane
+          bundle exec fastlane --version
