@@ -26,8 +26,11 @@ jobs:
 
       - name: Run
         env:
-          TEST_SECRET: ${{ secrets.TEST_SECRET }}
-        run: |
-          echo secret="$TEST_SECRET"
-          pwd
-          ls -lah
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+          FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          NOTHING: ${{ secrets.NOTHING }}
+        run: fastlane build
