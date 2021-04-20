@@ -13,7 +13,6 @@ jobs:
   build:
     name: Build and upload production ipa to TestFlight
     environment: production
-    timeout-minutes: 20
 
     # The type of runner that the job will run on
     runs-on: macos-latest
@@ -74,6 +73,7 @@ jobs:
           security list-keychain -d user -s $CERT_KEYCHAIN_PATH
 
       - name: Build
+        timeout-minutes: 20
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
