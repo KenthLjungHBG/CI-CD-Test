@@ -25,15 +25,9 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Run
+        env:
+          TEST_SECRET: ${{ secrets.TEST_SECRET }}
         run: |
-          echo secret=${{ secrets.TEST_SECRET }}
-          which ruby
-          which gem
-          which bundle
-          which fastlane
-          echo ruby version = `ruby --version`
-          echo gem version = `gem --version`
-          echo bundler version = `bundle --version`
-          cd ios
-          bundle exec which fastlane
-          bundle exec fastlane --version
+          echo secret="$TEST_SECRET"
+          pwd
+          ls -lah
