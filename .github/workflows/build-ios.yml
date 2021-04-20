@@ -33,4 +33,7 @@ jobs:
           PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           NOTHING: ${{ secrets.NOTHING }}
-        run: fastlane build
+        run: |
+          cd ios
+          pwd
+          bundle exec fastlane build
