@@ -64,7 +64,7 @@ jobs:
           TEAM_ID: ${{ secrets.TEAM_ID }}
           FASTLANE_SKIP_UPDATE_CHECK: 1
         run: |
-          CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
           fastlane build
 
