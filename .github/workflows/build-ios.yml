@@ -36,4 +36,4 @@ jobs:
         run: |
           cd ios
           pwd
-          bundle exec fastlane build
+          fastlane build
