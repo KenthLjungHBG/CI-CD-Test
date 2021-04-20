@@ -33,6 +33,7 @@ jobs:
           PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           NOTHING: ${{ secrets.NOTHING }}
+          FASTLANE_SKIP_UPDATE_CHECK: 1
         run: |
           cd ios
           pwd
