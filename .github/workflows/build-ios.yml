@@ -31,7 +31,6 @@ jobs:
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           # create variables
           CERTIFICATE_PATH=build_certificate.p12
@@ -40,9 +39,9 @@ jobs:
           echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
 
           # create temporary keychain
-          security create-keychain -p $KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
+          security create-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
           security set-keychain-settings -lut 1200 $CERT_KEYCHAIN_PATH
-          security unlock-keychain -p $KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
+          security unlock-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
 
           # import certificate to keychain
           security import $CERTIFICATE_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
