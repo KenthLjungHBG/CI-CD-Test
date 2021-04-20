@@ -19,7 +19,7 @@ jobs:
     runs-on: macos-latest
 
     env:
-      CERT_KEYCHAIN_PATH: ./app-signing.keychain-db
+      CERT_KEYCHAIN_PATH: ${{ env.RUNNER_TEMP }}/app-signing.keychain-db
       CERT_KEYCHAIN_PASSWORD: ${{ secrets.CERT_KEYCHAIN_PASSWORD }}
 
     # Steps represent a sequence of tasks that will be executed as part of the job
@@ -33,10 +33,10 @@ jobs:
           P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
         run: |
           # create variables
-          CERTIFICATE_PATH=build_certificate.p12
+          CERT_PATH=build_certificate.p12
 
           # import certificate and provisioning profile from secrets
-          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERT_PATH
 
           # create temporary keychain
           security create-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
@@ -44,7 +44,7 @@ jobs:
           security unlock-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
 
           # import certificate to keychain
-          security import $CERTIFICATE_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
+          security import $CERT_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
           security list-keychain -d user -s $CERT_KEYCHAIN_PATH
 
       - name: Build
@@ -62,5 +62,4 @@ jobs:
 
       - name: Clean up cert
         if: ${{ always() }}
-        run: |
-          security delete-keychain $CERT_KEYCHAIN_PATH
+        run:  security delete-keychain $CERT_KEYCHAIN_PATH
