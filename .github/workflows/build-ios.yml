@@ -20,16 +20,15 @@ jobs:
 
     env:
       CERT_KEYCHAIN_PASSWORD: ${{ secrets.CERT_KEYCHAIN_PASSWORD }}
+      NODE_ENV: production
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: echo
-        run: |
-          echo RUNNER_TEMP=$RUNNER_TEMP
-          echo RUNNER_TEMP2=${{ env.RUNNER_TEMP }}
+      - name: yarn
+        run: yarn install
 
       - name: Install cert and profile
         env:
