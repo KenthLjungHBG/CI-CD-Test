@@ -12,8 +12,8 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     name: Build and upload production ipa to TestFlight
-
     environment: production
+    timeout-minutes: 20
 
     # The type of runner that the job will run on
     runs-on: macos-latest
