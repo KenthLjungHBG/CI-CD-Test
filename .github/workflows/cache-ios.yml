@@ -1,5 +1,4 @@
 # Workflow for caching iOS build packages (yarn + cocoapods)
-# Note this always re-caches, which can take a while
 # Also run by build workflow but this allows for caching separately, since cache is not updated on build errors
 
 name: Cache iOS
@@ -43,9 +42,9 @@ jobs:
             ${{ runner.os }}-pods-
 
       - name: yarn install
-        run: yarn install --force
+        run: yarn install
 
       - name: pod install
         run: |
           cd ios
-          pod install --deployment --clean-install
+          pod install
