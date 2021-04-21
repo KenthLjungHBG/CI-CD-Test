@@ -47,7 +47,7 @@ jobs:
       - name: cache cocoapods DD
         uses: actions/cache@v2
         with:
-          path: .local_derived_data
+          path: ios/.local_derived_data
           key: ${{ runner.os }}-pods-derived-data-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
             ${{ runner.os }}-pods-derived-data-
