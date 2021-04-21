@@ -47,6 +47,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
+      # cocoapods derived data cache
+      - name: cache cocoapods DD
+        uses: actions/cache@v2
+        with:
+          path: ios/.local_derived_data
+          key: ${{ runner.os }}-pods-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-derived-data-
+
       - name: yarn install
         run: yarn install
 
