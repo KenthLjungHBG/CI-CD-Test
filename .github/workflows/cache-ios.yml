@@ -62,6 +62,7 @@ jobs:
           pod install
           popd
 
+      # post - will error if expected dirs does not exist
       - name: echo checks
         run: |
-          ls -lah . ios/ node_modules/react-native/scripts/
+          ls -lah . ios/Pods node_modules/react-native/scripts/
