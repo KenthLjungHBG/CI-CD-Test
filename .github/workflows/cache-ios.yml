@@ -20,6 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      # yarn / node modules
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -33,6 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      # cocoapods pod cache
       - name: cache cocoapods
         uses: actions/cache@v2
         with:
@@ -41,6 +43,16 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
+      # cocoapods derived data cache
+      - name: cache cocoapods DD
+        uses: actions/cache@v2
+        with:
+          path: .local_derived_data
+          key: ${{ runner.os }}-pods-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-derived-data-
+
+      # install
       - name: yarn install
         run: yarn install
 
