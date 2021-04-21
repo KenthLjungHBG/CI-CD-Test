@@ -47,8 +47,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: yarn
-        if: steps.yarn-cache.outputs.cache-hit != 'true'
+      - name: yarn install
         run: yarn install
 
       - name: Install cert and profile
