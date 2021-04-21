@@ -46,5 +46,10 @@ jobs:
 
       - name: pod install
         run: |
-          cd ios
+          pushd ios
           pod install
+          popd
+
+      - name: echo checks
+        run: |
+          ls -lah . ios/ node_modules/react-native/scripts/
