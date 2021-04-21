@@ -48,13 +48,14 @@ jobs:
             ${{ runner.os }}-pods-
 
       # cocoapods derived data cache
+      # note: use env.PODS_DD_PREFIX (random unique string) to invalidate/force a re-cache
       - name: cache cocoapods DD
         uses: actions/cache@v2
         with:
           path: ios/.local_derived_data
-          key: ${{ runner.os }}-pods-derived-data-${{ hashFiles('**/Podfile.lock') }}
+          key: ${{ runner.os }}-pods-derived-data-${{ env.PODS_DD_PREFIX }}-${{ hashFiles('**/Podfile.lock') }}
           restore-keys: |
-            ${{ runner.os }}-pods-derived-data-
+            ${{ runner.os }}-pods-derived-data-${{ env.PODS_DD_PREFIX }}-
 
       - name: yarn install
         run: yarn install
