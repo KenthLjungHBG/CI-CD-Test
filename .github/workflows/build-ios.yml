@@ -77,7 +77,7 @@ jobs:
           ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
 
       - name: Build
-        timeout-minutes: 20
+        timeout-minutes: 40
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
