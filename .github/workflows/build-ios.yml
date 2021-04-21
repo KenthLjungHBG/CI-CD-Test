@@ -72,6 +72,11 @@ jobs:
           security import $CERT_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
           security list-keychain -d user -s $CERT_KEYCHAIN_PATH
 
+      - name: echo checks
+        run: |
+          ls -lah . ios/ node_modules/react-native/scripts/
+          ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
+
       - name: Build
         timeout-minutes: 20
         env:
