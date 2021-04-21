@@ -87,7 +87,7 @@ jobs:
         run: |
           export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
-          fastlane build
+          fastlane build --verbose
 
       - name: Clean up cert
         if: ${{ always() }}
