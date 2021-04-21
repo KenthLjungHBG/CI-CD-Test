@@ -93,7 +93,10 @@ jobs:
           FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
           FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          GYM_SCHEME: ${{ secrets.GYM_SCHEME }}
           ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          MAIN_PROJECT: ${{ secrets.MAIN_PROJECT }}
+          MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
           PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           FASTLANE_SKIP_UPDATE_CHECK: 1
