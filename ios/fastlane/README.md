@@ -31,6 +31,11 @@ Build the app with correct distribution signing
 fastlane ios beta
 ```
 Push a new beta build to TestFlight
+### ios print_changelog
+```
+fastlane ios print_changelog
+```
+print the changelog
 
 ----
 
