@@ -1,0 +1,20 @@
+name: stub
+
+on:
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  stub:
+    name: Stub
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      
+      - name: echo
+        run: |
+          echo hello!
