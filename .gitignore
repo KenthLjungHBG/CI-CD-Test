@@ -55,6 +55,7 @@ buck-out/
 /ios/*.cer
 /ios/*.dSYM.zip
 /ios/*.mobileprovision
+/ios/.build_logs
 
 # Bundle artifact
 *.jsbundle

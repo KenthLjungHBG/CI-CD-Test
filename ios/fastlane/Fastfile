@@ -64,11 +64,12 @@ platform :ios do
 
         gym(
           silent: false,
-          suppress_xcode_output: false,
+          suppress_xcode_output: true,
           include_symbols: true,
           include_bitcode: true,
           project: "ios/#{ENV["MAIN_PROJECT"]}",
           scheme: scheme,
+          buildlog_path: "ios/.build_logs",
           configuration: build_configuration,
           output_directory: "ios",
           xcargs: [
@@ -86,9 +87,10 @@ platform :ios do
 
         build_app(
           silent: false,
-          suppress_xcode_output: false,
+          suppress_xcode_output: true,
           include_symbols: true,
           include_bitcode: true,
+          buildlog_path: "ios/.build_logs",
           workspace: "ios/#{ENV["MAIN_WORKSPACE"]}",
           derived_data_path: ios_derived_data_path,
           configuration: build_configuration,
