@@ -106,6 +106,12 @@ jobs:
           cd ios
           fastlane build --verbose
 
+      - name: Save build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-logs
+          path: ios/.build_logs
+
       - name: Clean up cert
         if: ${{ always() }}
         run:  |
