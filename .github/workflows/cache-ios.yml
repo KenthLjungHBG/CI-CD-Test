@@ -1,5 +1,4 @@
 # Workflow for caching iOS build packages (yarn + cocoapods)
-# Note this always re-caches, which can take a while
 # Also run by build workflow but this allows for caching separately, since cache is not updated on build errors
 
 name: Cache iOS
@@ -21,6 +20,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      # yarn / node modules
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
@@ -34,6 +34,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      # cocoapods pod cache
       - name: cache cocoapods
         uses: actions/cache@v2
         with:
@@ -42,10 +43,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      - name: yarn
-        run: yarn install --force
+      # install
+      - name: yarn install
+        run: yarn install
 
-      - name: Cache Cocoapods
+      - name: pod install
         run: |
-          cd ios
-          pod install --deployment --clean-install
+          pushd ios
+          pod install
+          popd
+
+      # post - will error if expected dirs does not exist
+      - name: echo checks
+        run: |
+          ls -lah . ios/Pods node_modules/react-native/scripts/
