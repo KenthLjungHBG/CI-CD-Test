@@ -3,6 +3,8 @@
 name: Smoke tests
 
 on:
+  pull_request:
+
   workflow_dispatch:
 
 jobs:
@@ -25,6 +27,7 @@ jobs:
         id: yarn-cache
         with:
           path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          # note: uses a separate (dev) cache, different from the build workflow
           key: ${{ runner.os }}-yarn-dev-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
             ${{ runner.os }}-yarn-dev-
@@ -34,6 +37,6 @@ jobs:
         run: yarn install
 
       # run tests
-      - name: jest
+      - name: run tests
         run: yarn test
         
