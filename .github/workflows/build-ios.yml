@@ -74,7 +74,7 @@ jobs:
 
           # create temporary keychain
           security create-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
-          security set-keychain-settings -lut 1200 $CERT_KEYCHAIN_PATH
+          security set-keychain-settings -lut 3600 $CERT_KEYCHAIN_PATH
           security unlock-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
 
           # import certificate to keychain
