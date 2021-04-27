@@ -16,28 +16,33 @@ platform :ios do
 
   desc "Update app version number and build number based on branch name following semantic versioning (falls back to highest of latest testflight vs xcode project version)"
   lane :update_app_version_numbers do
-    # official semver regex from https://semver.org/, slightly modified for branch names
-    SEMVER_REGEX = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-
-    branch = git_branch
-    puts "branch=#{branch}"
-
-    version_string = ""
-
-    if m = branch.match(SEMVER_REGEX)
-      version_string = m.captures[0, 3].join(".")
-      puts "extracted semantic version number from branch name \"#{branch}\" = #{m.captures.join(" ")}"
+    
+    version_string = ENV["FORCED_VERSION_NUMBER_STRING"]
+    
+    if version_string != nil && version_string.length > 0
+      puts "using forced version \"#{version_string}\""
     else
-      # UI.user_error!("unable to determine semantic version from branch name \"#{branch}\"")
-      puts "unable to determine semantic version from branch name \"#{branch}\""
+      # official semver regex from https://semver.org/, slightly modified for branch names
+      SEMVER_REGEX = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
       
-      app_store_build_number(live: false)
-      latest_app_store_version = lane_context[SharedValues::LATEST_VERSION]
-      xcode_project_version = get_version_number
+      branch = git_branch
+      puts "branch=#{branch}"
 
-      # use largest version (note ascii comparison - not sure if accurate enough)
-      version_string = latest_app_store_version > xcode_project_version ? latest_app_store_version : xcode_project_version
-      puts "using version #{version_string} (latest app store = #{latest_app_store_version}, project version = #{xcode_project_version})"
+      if m = branch.match(SEMVER_REGEX)
+        version_string = m.captures[0, 3].join(".")
+        puts "extracted semantic version number from branch name \"#{branch}\" = #{m.captures.join(" ")}"
+      else
+        # UI.user_error!("unable to determine semantic version from branch name \"#{branch}\"")
+        puts "unable to determine semantic version from branch name \"#{branch}\""
+        
+        app_store_build_number(live: false)
+        latest_app_store_version = lane_context[SharedValues::LATEST_VERSION]
+        xcode_project_version = get_version_number
+
+        # use largest version (note ascii comparison - not sure if accurate enough)
+        version_string = latest_app_store_version > xcode_project_version ? latest_app_store_version : xcode_project_version
+        puts "using version #{version_string} (latest app store = #{latest_app_store_version}, project version = #{xcode_project_version})"
+      end
     end
 
     # increment build number
