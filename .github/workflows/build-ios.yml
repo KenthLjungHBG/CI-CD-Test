@@ -6,6 +6,9 @@ name: Build (iOS)
 on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      forcedVersion:
+        description: Force Version Number String
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -101,6 +104,7 @@ jobs:
           PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           FASTLANE_SKIP_UPDATE_CHECK: 1
+          FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
         run: |
           export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
