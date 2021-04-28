@@ -1,7 +1,7 @@
 # Workflow for caching iOS build packages (yarn + cocoapods)
 # Also run by build workflow but this allows for caching separately, since cache is not updated on build errors
 
-name: Cache iOS
+name: iOS - Cache
 
 on:
   workflow_dispatch:
