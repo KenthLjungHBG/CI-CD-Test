@@ -87,6 +87,13 @@ jobs:
           ls -lah . ios/ node_modules/react-native/scripts/
           ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
 
+      - name: Set env vars
+        env:
+          ADDITIONAL_ENV_VARS: ${{ secrets.ADDITIONAL_ENV_VARS }}
+        run: |
+          echo $ADDITIONAL_ENV_VARS > .env
+          echo "envs:\n$(cat .env)"
+
       - name: Build
         timeout-minutes: 60
         env:
