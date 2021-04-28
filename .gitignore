@@ -63,3 +63,5 @@ buck-out/
 # CocoaPods
 /ios/Pods/
 /ios/.local_derived_data
+
+.env
