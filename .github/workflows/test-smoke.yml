@@ -1,6 +1,6 @@
 # Workflow for running smoke tests for pull requests etc.
 
-name: tests - Smoke Tests
+name: Tests - Smoke Tests
 
 on:
   pull_request:
