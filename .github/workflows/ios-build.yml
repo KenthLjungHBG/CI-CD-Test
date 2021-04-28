@@ -113,8 +113,9 @@ jobs:
           MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
           PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
-          FASTLANE_SKIP_UPDATE_CHECK: 1
           FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
+          PERFORM_LONG_UPLOAD: ${{ secrets.PERFORM_LONG_UPLOAD }}
+          FASTLANE_SKIP_UPDATE_CHECK: 1
         run: |
           export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
