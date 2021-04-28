@@ -3,6 +3,10 @@
 name: iOS - Build
 
 on:
+  push:
+    branches:
+      - release/**
+
   workflow_dispatch:
     inputs:
       forcedVersion:
