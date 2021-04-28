@@ -92,7 +92,7 @@ jobs:
           ADDITIONAL_ENV_VARS: ${{ secrets.ADDITIONAL_ENV_VARS }}
         run: |
           echo $ADDITIONAL_ENV_VARS > .env
-          echo "envs:\n$(cat .env)"
+          wc -w .env
 
       - name: Build
         timeout-minutes: 60
