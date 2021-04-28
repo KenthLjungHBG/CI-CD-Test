@@ -173,14 +173,31 @@ platform :ios do
     puts "changelog=#{changelog}"
 
     # upload
-    upload_to_testflight(
-      skip_submission: true,
-      notify_external_testers: false,
-      changelog: changelog,
+    if ENV["PERFORM_LONG_UPLOAD"] == "true"
 
-      # note: skipping this sacrifices some flexibility in post-processing but reduces CI minutes and costs significantly
-      skip_waiting_for_build_processing: true
-    )
+      puts "performing long upload (will wait for processing and notify testers)"
+      upload_to_testflight(
+        skip_submission: false,
+        notify_external_testers: true,
+        changelog: changelog,
+        skip_waiting_for_build_processing: false,
+        uses_non_exempt_encryption: false,
+        groups: "CD Builds"
+      )
+
+    else
+
+      puts "performing short upload (will only wait for changelog processing and will not notify testers)"
+      upload_to_testflight(
+        skip_submission: true,
+        notify_external_testers: false,
+        changelog: changelog,
+      
+        # note: skipping this sacrifices some flexibility in post-processing but reduces CI minutes and costs significantly
+        skip_waiting_for_build_processing: true
+      )
+
+    end
 
   end
 
