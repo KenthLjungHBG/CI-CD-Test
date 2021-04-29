@@ -86,7 +86,9 @@ end
 
 platform :ios do
 
+  before_all do |lane, options|
     xcversion(version: "~> 12.4")
+  end
 
   desc "Update app version number and build number based on branch name following semantic versioning (falls back to highest of latest testflight vs xcode project version)"
   lane :update_app_version_numbers do
