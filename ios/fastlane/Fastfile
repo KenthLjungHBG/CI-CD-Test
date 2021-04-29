@@ -70,7 +70,11 @@ lane :tag_version do
     sh "git rev-list -n 1 \"tags/#{tag_to_set}\""
   end
 
-  add_git_tag(tag: tag_to_set, force: true)
+  add_git_tag(
+    tag: tag_to_set, 
+    message: "(automatic release tag)",
+    force: true
+  )
   push_git_tags(force: true)
 
 end
