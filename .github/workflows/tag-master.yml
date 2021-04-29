@@ -29,6 +29,8 @@ jobs:
           echo GIT_BASE_REF=$GIT_BASE_REF
           echo GIT_HEAD_REF=$GIT_HEAD_REF
           echo GIT_REF=$GIT_REF
+          ruby --version
+          which ruby
 
       - name: Tag
         env:
