@@ -26,11 +26,11 @@ platform :ios do
       puts "using forced version \"#{version_string}\""
 
     else
-      
+
       version_string = get_semver_from_branch
 
       if version_string == nil
-        
+
         app_store_build_number(live: false)
         latest_app_store_version = lane_context[SharedValues::LATEST_VERSION]
         xcode_project_version = get_version_number
@@ -198,6 +198,34 @@ platform :ios do
   end
 
 
+  desc "Tag the current ref with the version based on branch name or env input"
+  lane :tag_version do
+
+    tag_to_set = ENV["GIT_TAG_TO_SET"]
+
+    puts "GIT_TAG_TO_SET is #{tag_to_set}"
+
+    if tag_to_set == nil || tag_to_set.length == 0
+      tag_to_set = get_tag_to_set_from_branch
+    end
+
+    if tag_to_set == nil || tag_to_set.length == 0
+      UI.user_error! "unable to determine git tag to set"
+    end
+
+    puts "tagging current as \"#{tag_to_set}\""
+
+    if git_tag_exists(tag: tag_to_set)
+      UI.important "warning: tag already exists and will be overwritten! see output below:"
+      sh "git rev-list -n 1 \"tags/#{tag_to_set}\""
+    end
+
+    add_git_tag(tag: tag_to_set, force: true)
+    push_git_tags(force: true)
+
+  end
+
+
   desc "Print the changelog"
   lane :print_changelog do
 
@@ -219,7 +247,7 @@ platform :ios do
     end
 
   end
-
+  
 
   def get_semver_from_branch()
 
