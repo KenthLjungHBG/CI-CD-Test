@@ -1,6 +1,6 @@
 # Workflow for tagging the master branch when 
 
-name: iOS - Build
+name: Tag master branch
 
 on:
   pull_request:
