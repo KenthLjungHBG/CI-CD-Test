@@ -198,7 +198,7 @@ platform :ios do
   end
 
 
-  desc "print the changelog"
+  desc "Print the changelog"
   lane :print_changelog do
 
     puts "changelog:\n#{get_changelog()}"
