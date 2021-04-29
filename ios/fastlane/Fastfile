@@ -56,7 +56,7 @@ lane :tag_version do
   puts "GIT_TAG_TO_SET is #{tag_to_set}"
 
   if tag_to_set == nil || tag_to_set.length == 0
-    tag_to_set = get_tag_to_set_from_branch
+    tag_to_set = get_semver_from_branch
   end
 
   if tag_to_set == nil || tag_to_set.length == 0
