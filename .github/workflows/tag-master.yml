@@ -1,0 +1,39 @@
+# Workflow for tagging the master branch when 
+
+name: iOS - Build
+
+on:
+  pull_request:
+    branches:
+      - master
+    types:
+      - closed
+
+jobs:
+  tag:
+    name: Tag master branch
+    environment: production
+    if: ${{ github.event.pull_request.merged == true }}
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Echo
+        env:
+          GIT_BASE_REF: ${{ github.base_ref }}
+          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_REF: ${{ github.ref }}
+        run: |
+          echo GIT_BASE_REF=$GIT_BASE_REF
+          echo GIT_HEAD_REF=$GIT_HEAD_REF
+          echo GIT_REF=$GIT_REF
+
+      - name: Tag
+        env:
+          GIT_HEAD_REF: ${{ github.head_ref }}
+        run:  |
+          export GIT_TAG_TO_SET=$(echo $GIT_HEAD_REF | awk -F/ '{print $NF}')
+          cd ios
+          fastlane tag_version

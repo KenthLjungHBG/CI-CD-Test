@@ -1,0 +1,134 @@
+# Workflow for building and uploading a production-ready Testflight build
+
+name: iOS - Build
+
+on:
+  push:
+    branches:
+      - release/**
+
+  workflow_dispatch:
+    inputs:
+      forcedVersion:
+        description: Force Version Number String
+
+concurrency: 
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and upload production ipa to TestFlight
+    environment: production
+
+    runs-on: macos-10.15
+
+    env:
+      CERT_KEYCHAIN_PASSWORD: ${{ secrets.CERT_KEYCHAIN_PASSWORD }}
+      NODE_ENV: production
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - name: cache yarn
+        uses: actions/cache@v2
+        id: yarn-cache
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - name: cache cocoapods
+        uses: actions/cache@v2
+        with:
+          path: ios/Pods
+          key: ${{ runner.os }}-pods-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-
+
+      # cocoapods derived data cache
+      # note: use env.PODS_DD_PREFIX (random unique string) to invalidate/force a re-cache
+      - name: cache cocoapods DD
+        uses: actions/cache@v2
+        with:
+          path: ios/.local_derived_data
+          key: ${{ runner.os }}-pods-derived-data-${{ secrets.PODS_DD_PREFIX }}-${{ hashFiles('**/Podfile.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pods-derived-data-${{ secrets.PODS_DD_PREFIX }}-
+
+      - name: yarn install
+        run: yarn install
+
+      - name: Install cert and profile
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
+          P12_PASSWORD: ${{ secrets.P12_PASSWORD }}
+        run: |
+          # create variables
+          CERT_PATH=build_certificate.p12
+          CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # import certificate and provisioning profile from secrets
+          echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERT_PATH
+
+          # create temporary keychain
+          security create-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
+          security set-keychain-settings -lut 3600 $CERT_KEYCHAIN_PATH
+          security unlock-keychain -p $CERT_KEYCHAIN_PASSWORD $CERT_KEYCHAIN_PATH
+
+          # import certificate to keychain
+          security import $CERT_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
+          security list-keychain -d user -s $CERT_KEYCHAIN_PATH
+
+      - name: Set env vars
+        env:
+          ADDITIONAL_ENV_VARS: ${{ secrets.ADDITIONAL_ENV_VARS }}
+        run: |
+          echo $ADDITIONAL_ENV_VARS > .env
+          wc -w .env
+
+      - name: echo checks
+        run: |
+          ls -lah . ios/ node_modules/react-native/scripts/
+          ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
+          ls .env
+
+      - name: Build
+        timeout-minutes: 60
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+          FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD: ${{ secrets.FASTLANE_APPLE_APPLICATION_SPECIFIC_PASSWORD }}
+          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+          FASTLANE_SESSION: ${{ secrets.FASTLANE_SESSION }}
+          GYM_SCHEME: ${{ secrets.GYM_SCHEME }}
+          ITC_TEAM_ID: ${{ secrets.ITC_TEAM_ID }}
+          MAIN_PROJECT: ${{ secrets.MAIN_PROJECT }}
+          MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
+          PILOT_APPLE_ID: ${{ secrets.PILOT_APPLE_ID }}
+          TEAM_ID: ${{ secrets.TEAM_ID }}
+          FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
+          PERFORM_LONG_UPLOAD: ${{ secrets.PERFORM_LONG_UPLOAD }}
+          FASTLANE_SKIP_UPDATE_CHECK: 1
+        run: |
+          export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          cd ios
+          fastlane beta --verbose
+
+      - name: Save build log
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-logs
+          path: ios/.build_logs
+
+      - name: Clean up cert
+        if: ${{ always() }}
+        run:  |
+          CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          security delete-keychain $CERT_KEYCHAIN_PATH
