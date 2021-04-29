@@ -44,11 +44,6 @@ Build the app with correct distribution signing
 fastlane ios beta
 ```
 Push a new beta build to TestFlight
-### ios oof
-```
-fastlane ios oof
-```
-
 
 ----
 
