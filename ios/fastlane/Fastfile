@@ -12,9 +12,81 @@
 
 default_platform(:ios)
 
-xcversion(version: "~> 12.4")
+
+def get_changelog()
+  
+  Dir.chdir("..") do
+
+    branch_name = git_branch
+    commit = last_git_commit
+    changelog_msg = "(automatically built from #{commit[:abbreviated_commit_hash]} on #{branch_name})"
+
+    return changelog_msg
+
+  end
+
+end
+
+
+def get_semver_from_branch()
+
+  # official semver regex from https://semver.org/, slightly modified for branch names
+  semver_regex = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+  
+  branch = git_branch
+  puts "branch=#{branch}"
+
+  if m = branch.match(semver_regex)
+    version_string = m.captures[0, 3].join(".")
+    puts "extracted semantic version number from branch name \"#{branch}\" = #{m.captures.join(" ")}"
+    return version_string
+  else
+    puts "unable to determine semantic version from branch name \"#{branch}\""
+    return nil
+  end
+    
+end
+
+
+desc "Tag the current ref with the version based on branch name or env input"
+lane :tag_version do
+
+  tag_to_set = ENV["GIT_TAG_TO_SET"]
+
+  puts "GIT_TAG_TO_SET is #{tag_to_set}"
+
+  if tag_to_set == nil || tag_to_set.length == 0
+    tag_to_set = get_tag_to_set_from_branch
+  end
+
+  if tag_to_set == nil || tag_to_set.length == 0
+    UI.user_error! "unable to determine git tag to set"
+  end
+
+  puts "tagging current as \"#{tag_to_set}\""
+
+  if git_tag_exists(tag: tag_to_set)
+    UI.important "warning: tag already exists and will be overwritten! see output below:"
+    sh "git rev-list -n 1 \"tags/#{tag_to_set}\""
+  end
+
+  add_git_tag(tag: tag_to_set, force: true)
+  push_git_tags(force: true)
+
+end
+
+
+desc "Print the changelog"
+lane :print_changelog do
+
+  puts "changelog:\n#{get_changelog()}"
+
+end
+
 
 platform :ios do
+
+    xcversion(version: "~> 12.4")
 
   desc "Update app version number and build number based on branch name following semantic versioning (falls back to highest of latest testflight vs xcode project version)"
   lane :update_app_version_numbers do
@@ -195,77 +267,6 @@ platform :ios do
 
     end
 
-  end
-
-
-  desc "Tag the current ref with the version based on branch name or env input"
-  lane :tag_version do
-
-    tag_to_set = ENV["GIT_TAG_TO_SET"]
-
-    puts "GIT_TAG_TO_SET is #{tag_to_set}"
-
-    if tag_to_set == nil || tag_to_set.length == 0
-      tag_to_set = get_tag_to_set_from_branch
-    end
-
-    if tag_to_set == nil || tag_to_set.length == 0
-      UI.user_error! "unable to determine git tag to set"
-    end
-
-    puts "tagging current as \"#{tag_to_set}\""
-
-    if git_tag_exists(tag: tag_to_set)
-      UI.important "warning: tag already exists and will be overwritten! see output below:"
-      sh "git rev-list -n 1 \"tags/#{tag_to_set}\""
-    end
-
-    add_git_tag(tag: tag_to_set, force: true)
-    push_git_tags(force: true)
-
-  end
-
-
-  desc "Print the changelog"
-  lane :print_changelog do
-
-    puts "changelog:\n#{get_changelog()}"
-
-  end
-
-
-  def get_changelog()
-    
-    Dir.chdir("..") do
-
-      branch_name = git_branch
-      commit = last_git_commit
-      changelog_msg = "(automatically built from #{commit[:abbreviated_commit_hash]} on #{branch_name})"
-
-      return changelog_msg
-
-    end
-
-  end
-  
-
-  def get_semver_from_branch()
-
-    # official semver regex from https://semver.org/, slightly modified for branch names
-    semver_regex = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-    
-    branch = git_branch
-    puts "branch=#{branch}"
-
-    if m = branch.match(semver_regex)
-      version_string = m.captures[0, 3].join(".")
-      puts "extracted semantic version number from branch name \"#{branch}\" = #{m.captures.join(" ")}"
-      return version_string
-    else
-      puts "unable to determine semantic version from branch name \"#{branch}\""
-      return nil
-    end
-      
   end
 
 end
