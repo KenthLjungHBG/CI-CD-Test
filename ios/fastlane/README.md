@@ -15,6 +15,19 @@ Install _fastlane_ using
 or alternatively using `brew install fastlane`
 
 # Available Actions
+### tag_version
+```
+fastlane tag_version
+```
+Tag the current ref with the version based on branch name or env input
+### print_changelog
+```
+fastlane print_changelog
+```
+Print the changelog
+
+----
+
 ## iOS
 ### ios update_app_version_numbers
 ```
@@ -31,16 +44,11 @@ Build the app with correct distribution signing
 fastlane ios beta
 ```
 Push a new beta build to TestFlight
-### ios tag_version
+### ios oof
 ```
-fastlane ios tag_version
+fastlane ios oof
 ```
-Tag the current ref with the version based on branch name or env input
-### ios print_changelog
-```
-fastlane ios print_changelog
-```
-Print the changelog
+
 
 ----
 
