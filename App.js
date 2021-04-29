@@ -73,7 +73,7 @@ const App: () => Node = () => {
           style={{
             backgroundColor: isDarkMode ? Colors.black : Colors.white,
           }}>
-          <Section title="Hello World">
+          <Section title="Hello World!">
             <View style={{flexDirection: 'column'}}>
               <Text>Env:</Text>
               {Object.keys(Config).map(k => (
