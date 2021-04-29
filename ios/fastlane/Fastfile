@@ -90,6 +90,13 @@ end
 
 platform :ios do
 
+  def get_project_xcode_version()
+    return get_version_number(
+      xcodeproj: ENV["MAIN_PROJECT"],
+      target: ENV["GYM_SCHEME"]
+    )
+  end
+
   before_all do |lane, options|
     xcversion(version: "~> 12.4")
   end
@@ -98,6 +105,7 @@ platform :ios do
   lane :update_app_version_numbers do
     
     version_string = ENV["FORCED_VERSION_NUMBER_STRING"]
+    xcode_project_version = nil
     
     if version_string != nil && version_string.length > 0
 
@@ -111,7 +119,7 @@ platform :ios do
 
         app_store_build_number(live: false)
         latest_app_store_version = lane_context[SharedValues::LATEST_VERSION]
-        xcode_project_version = get_version_number
+        xcode_project_version = get_project_xcode_version
 
         # use largest version (note ascii comparison - not sure if accurate enough)
         version_string = latest_app_store_version > xcode_project_version ? latest_app_store_version : xcode_project_version
@@ -127,7 +135,7 @@ platform :ios do
     increment_build_number(build_number: build_number)
 
     # set version number
-    current_version_string = get_version_number
+    current_version_string = xcode_project_version || get_project_xcode_version
     increment_version_number(version_number: version_string)
 
 
