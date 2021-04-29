@@ -6,8 +6,8 @@ on:
   pull_request:
     branches:
       - master
-#    types:
-#      - closed
+    types:
+      - closed
 
 jobs:
   tag:
@@ -30,10 +30,10 @@ jobs:
           echo GIT_HEAD_REF=$GIT_HEAD_REF
           echo GIT_REF=$GIT_REF
 
-      #- name: Tag
-      #  env:
-      #    GIT_HEAD_REF: ${{ github.head_ref }}
-      #  run:  |
-      #    export GIT_TAG_TO_SET=$(echo $GIT_HEAD_REF | awk -F/ '{print $NF}')
-      #    cd ios
-      #    fastlane tag_version
+      - name: Tag
+        env:
+          GIT_HEAD_REF: ${{ github.head_ref }}
+        run:  |
+          export GIT_TAG_TO_SET=$(echo $GIT_HEAD_REF | awk -F/ '{print $NF}')
+          cd ios
+          fastlane tag_version
