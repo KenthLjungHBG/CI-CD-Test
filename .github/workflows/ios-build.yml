@@ -117,8 +117,7 @@ jobs:
         run: |
           export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
-          fastlane build --verbose
-          ls this/will/error
+          fastlane beta --verbose
 
       - name: Save build log
         if: ${{ always() }}
