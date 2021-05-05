@@ -11,14 +11,46 @@ jobs:
   env-echo:
     name: Env echo
     environment:
-      name: ${{ github.event.inputs.envName }}
+      name: production
 
     runs-on: ubuntu-20.04
 
     steps:
+      ######################
+      # Set correct env vars (develop/release/production)
+      ######################
+      - name: Set env vars (release)
+        if: contains(github.ref, '/release/')
+        env:
+          ADDITIONAL_ENV_VARS: ${{ secrets.RELEASE_ADDITIONAL_ENV_VARS }}
+        run: |
+          echo "using release environment"
+          echo $ADDITIONAL_ENV_VARS > .env
+
+      - name: Set env vars (production)
+        if: endsWith(github.ref, '/master')
+        env:
+          ADDITIONAL_ENV_VARS: ${{ secrets.PRODUCTION_ADDITIONAL_ENV_VARS }}
+        run: |
+          echo "using production environment"
+          echo $ADDITIONAL_ENV_VARS > .env
+
+      - name: Set env vars (develop)
+        env:
+          ADDITIONAL_ENV_VARS: ${{ secrets.DEVELOP_ADDITIONAL_ENV_VARS }}
+        run: |
+          if [[ ! -f ".env" ]]; then
+            echo "fallback to develop environment"
+            echo $ADDITIONAL_ENV_VARS > .env
+          fi
+      ######################
+      # END Set correct env vars (develop/release/production)
+      ######################
+
+
       - name: echo
         env:
-          ECHO_TEST: ${{ secrets.ECHO_TEST }}
+          ECHO_TEST: ${{ env.ECHO_TEST }}
         run: |
-          echo $ECHO_TEST
-          echo $ECHO_TEST | grep -o .
+          cat .env
+          cat.env | grep -o .
