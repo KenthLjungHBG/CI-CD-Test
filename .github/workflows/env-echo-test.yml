@@ -1,0 +1,24 @@
+name: env echo test
+
+on:
+  pull_request:
+
+  workflow_dispatch:
+    inputs:
+      envName:
+
+jobs:
+  env-echo:
+    name: Env echo
+    environment:
+      name: ${{ github.event.inputs.envName }}
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: echo
+        env:
+          ECHO_TEST: ${{ secrets.ECHO_TEST }}
+        run: |
+          echo $ECHO_TEST
+          echo $ECHO_TEST | grep -o .
