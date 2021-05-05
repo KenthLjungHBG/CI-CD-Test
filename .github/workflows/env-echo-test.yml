@@ -53,4 +53,4 @@ jobs:
           ECHO_TEST: ${{ env.ECHO_TEST }}
         run: |
           cat .env
-          cat.env | grep -o .
+          cat .env | grep -o .
