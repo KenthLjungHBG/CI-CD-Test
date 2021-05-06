@@ -36,13 +36,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Default test (null?)
-        if: ${{ github.event.inputs.defaultTest == null }}
-        run: echo "it's null!"
-
-      - name: Default test (empty?)
-        if: ${{ github.event.inputs.defaultTest == '' }}
-        run: echo "it's just empty!"
 
       ######################
       # Set env vars (develop/release/production)
