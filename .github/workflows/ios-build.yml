@@ -72,7 +72,11 @@ jobs:
       ######################
       # END Set .env file vars (develop/release/production)
       ######################
+      
 
+      # setup correct ruby environment
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
 
       # get the yarn cache dir and pipe it to the next step
       - name: Get yarn cache directory path
