@@ -5,6 +5,7 @@ name: iOS - Build
 on:
   push:
     branches:
+      # any commit to a release branch will trigger a new build
       - release/**
       - master
 
@@ -15,6 +16,8 @@ on:
       forcedEnvironment:
         description: Force environment used for .env file content
 
+# prevents multiple build workflows from running 
+# (in-progress and queued will be cancelled in favor of pending)
 concurrency: 
   group: ${{ github.ref }}
   cancel-in-progress: true
@@ -31,12 +34,13 @@ jobs:
       NODE_ENV: production
 
     steps:
+      # checkout the repo
       - name: Checkout
         uses: actions/checkout@v2
 
 
       ######################
-      # Set env vars (develop/release/production)
+      # Set .env file vars (develop/release/production)
       ######################
       - name: Set env vars (production)
         if: ${{ github.event.inputs.forcedEnvironment == 'production' || (github.event.inputs.forcedEnvironment == null && endsWith(github.ref, '/master')) }}
@@ -66,14 +70,16 @@ jobs:
             echo "CI_MATCHED_ENV=develop" >> $GITHUB_ENV
           fi
       ######################
-      # END Set env vars (develop/release/production)
+      # END Set .env file vars (develop/release/production)
       ######################
 
 
+      # get the yarn cache dir and pipe it to the next step
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
         run: echo "::set-output name=dir::$(yarn cache dir)"
 
+      # enable yarn cache
       - name: cache yarn
         uses: actions/cache@v2
         id: yarn-cache
@@ -83,6 +89,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-yarn-
 
+      # enable pod cache
       - name: cache cocoapods
         uses: actions/cache@v2
         with:
@@ -91,7 +98,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-
 
-      # cocoapods derived data cache
+      # enable ocoapods derived data cache
       # note: use env.PODS_DD_PREFIX (random unique string) to invalidate/force a re-cache
       - name: cache cocoapods DD
         uses: actions/cache@v2
@@ -101,9 +108,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pods-derived-data-${{ secrets.PODS_DD_PREFIX }}-
 
+      # install dependencies
       - name: yarn install
         run: yarn install
 
+      # create a new keychain from env var data with cert and profile
       - name: Install cert and profile
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.BUILD_CERTIFICATE_BASE64 }}
@@ -125,12 +134,14 @@ jobs:
           security import $CERT_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
           security list-keychain -d user -s $CERT_KEYCHAIN_PATH
 
+      # perform some basic integrity checks
       - name: Minor checks
         run: |
           ls -lah . ios/ node_modules/react-native/scripts/
           ls .env
           wc -w .env
 
+      # main build step
       - name: Build
         timeout-minutes: 60
         env:
@@ -152,6 +163,7 @@ jobs:
           cd ios
           fastlane beta --verbose
 
+      # save xcode output since it's not printed to stdout
       - name: Save build log
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
@@ -160,6 +172,7 @@ jobs:
           name: build-logs
           path: ios/.build_logs
 
+      # remove temporary keychain
       - name: Clean up cert
         if: ${{ always() }}
         run:  |
