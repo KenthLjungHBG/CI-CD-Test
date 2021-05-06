@@ -36,7 +36,7 @@ jobs:
       # Set env vars (develop/release/production)
       ######################
       - name: Set env vars (release)
-        if: ${{ github.event.inputs.forcedVersion == "release" || (github.event.inputs.forcedVersion == null && contains(github.ref, '/release/')) }}
+        if: ${{ github.event.inputs.forcedVersion == 'release' || (github.event.inputs.forcedVersion == null && contains(github.ref, '/release/')) }}
         env:
           ADDITIONAL_ENV_VARS: ${{ secrets.RELEASE_ADDITIONAL_ENV_VARS }}
         run: |
@@ -44,7 +44,7 @@ jobs:
           echo $ADDITIONAL_ENV_VARS > .env
 
       - name: Set env vars (production)
-        if: ${{ github.event.inputs.forcedVersion == "production" || (github.event.inputs.forcedVersion == null && endsWith(github.ref, '/master')) }}
+        if: ${{ github.event.inputs.forcedVersion == 'production' || (github.event.inputs.forcedVersion == null && endsWith(github.ref, '/master')) }}
         env:
           ADDITIONAL_ENV_VARS: ${{ secrets.PRODUCTION_ADDITIONAL_ENV_VARS }}
         run: |
