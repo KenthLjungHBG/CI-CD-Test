@@ -14,8 +14,6 @@ on:
         description: Force Version Number String
       forcedEnvironment:
         description: Force environment used for .env file content
-      defaultTest:
-        description: Test
 
 concurrency: 
   group: ${{ github.ref }}
