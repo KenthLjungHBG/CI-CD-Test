@@ -127,13 +127,6 @@ jobs:
           security import $CERT_PATH -P $P12_PASSWORD -A -t cert -f pkcs12 -k $CERT_KEYCHAIN_PATH
           security list-keychain -d user -s $CERT_KEYCHAIN_PATH
 
-      - name: Set env vars
-        env:
-          ADDITIONAL_ENV_VARS: ${{ secrets.ADDITIONAL_ENV_VARS }}
-        run: |
-          echo $ADDITIONAL_ENV_VARS > .env
-          wc -w .env
-
       - name: Minor checks
         run: |
           ls -lah . ios/ node_modules/react-native/scripts/
