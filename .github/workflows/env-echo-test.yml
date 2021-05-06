@@ -6,6 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       envName:
+      forcedEnvironment:
+        description: Force environment for .env file
+      defaultTest:
+        description: Test
 
 jobs:
   env-echo:
@@ -16,11 +20,23 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - name: Default test (null?)
+        if: ${{ github.event.inputs.defaultTest == null }}
+        run: echo "it's null!"
+
+      - name: Default test (empty?)
+        if: ${{ github.event.inputs.defaultTest == '' }}
+        run: echo "it's just empty!"
+
+      - name: Default test (does not exist?)
+        if: ${{ github.event.inputs.nonexisting == null }}
+        run: echo "non-existing is null!"
+
       ######################
-      # Set correct env vars (develop/release/production)
+      # Set env vars (develop/release/production)
       ######################
       - name: Set env vars (release)
-        if: contains(github.ref, '/release/')
+        if: ${{ github.event.inputs.forcedVersion == "release" || (github.event.inputs.forcedVersion == null && contains(github.ref, '/release/')) }}
         env:
           ADDITIONAL_ENV_VARS: ${{ secrets.RELEASE_ADDITIONAL_ENV_VARS }}
         run: |
@@ -28,7 +44,7 @@ jobs:
           echo $ADDITIONAL_ENV_VARS > .env
 
       - name: Set env vars (production)
-        if: endsWith(github.ref, '/master')
+        if: ${{ github.event.inputs.forcedVersion == "production" || (github.event.inputs.forcedVersion == null && endsWith(github.ref, '/master')) }}
         env:
           ADDITIONAL_ENV_VARS: ${{ secrets.PRODUCTION_ADDITIONAL_ENV_VARS }}
         run: |
@@ -44,7 +60,7 @@ jobs:
             echo $ADDITIONAL_ENV_VARS > .env
           fi
       ######################
-      # END Set correct env vars (develop/release/production)
+      # END Set env vars (develop/release/production)
       ######################
 
 
