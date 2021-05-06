@@ -132,6 +132,7 @@ jobs:
           ls -lah . ios/ node_modules/react-native/scripts/
           ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
           ls .env
+          wc -w .env
 
       - name: Build
         timeout-minutes: 60
