@@ -93,7 +93,7 @@ jobs:
           echo $ADDITIONAL_ENV_VARS > .env
           wc -w .env
 
-      - name: echo checks
+      - name: Minor checks
         run: |
           ls -lah . ios/ node_modules/react-native/scripts/
           ls -lah /Users/runner/work/CI-CD-Test/CI-CD-Test/node_modules/react-native/scripts/
