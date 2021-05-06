@@ -20,6 +20,12 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+
       - name: Default test (null?)
         if: ${{ github.event.inputs.defaultTest == null }}
         run: echo "it's null!"
@@ -42,6 +48,7 @@ jobs:
         run: |
           echo "using production environment"
           echo $ADDITIONAL_ENV_VARS > .env
+          echo "CI_MATCHED_ENV=production" >> $GITHUB_ENV
 
       - name: Set env vars (release)
         if: ${{ github.event.inputs.forcedEnvironment == 'release' || (github.event.inputs.forcedEnvironment == null && contains(github.ref, '/release/')) }}
@@ -50,6 +57,7 @@ jobs:
         run: |
           echo "using release environment"
           echo $ADDITIONAL_ENV_VARS > .env
+          echo "CI_MATCHED_ENV=release" >> $GITHUB_ENV
 
       - name: Set env vars (develop)
         env:
@@ -58,6 +66,7 @@ jobs:
           if [[ ! -f ".env" ]]; then
             echo "fallback to develop environment"
             echo $ADDITIONAL_ENV_VARS > .env
+            echo "CI_MATCHED_ENV=develop" >> $GITHUB_ENV
           fi
       ######################
       # END Set env vars (develop/release/production)
@@ -67,6 +76,9 @@ jobs:
       - name: echo
         env:
           ECHO_TEST: ${{ env.ECHO_TEST }}
+          CI_MATCHED_ENV: ${{ env.CI_MATCHED_ENV }}
         run: |
           cat .env
           cat .env | grep -o .
+          cd ios
+          fastlane print_changelog
