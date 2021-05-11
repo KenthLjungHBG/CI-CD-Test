@@ -168,16 +168,10 @@ jobs:
           name: build-logs
           path: ios/.build_logs
 
-      # save build artifacts for debugging
-      - name: Save build artifacts - pipe flag
-        id: save-build-artifacts
-        if: ${{ always() }}
-        run: echo '::set-output name=should-save::${{secrets.SAVE_ARTIFACTS}}'
-
+      # save build artifacts
       - name: Save build artifacts
-        if: ${{ always() && steps.save-build-artifacts.outputs.should-save == 'true' }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
-        continue-on-error: true
         with:
           name: build-artifacts
           path: |
