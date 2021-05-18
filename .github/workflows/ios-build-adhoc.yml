@@ -62,7 +62,7 @@ jobs:
         run: |
           if [[ ! -f ".env" ]]; then
             echo "fallback to develop environment"
-            echo $ADDITIONAL_ENV_VARS > .env
+            echo $ADDITIONAL_ENV_VARS | base64 -d > .env
             echo "CI_MATCHED_ENV=develop" >> $GITHUB_ENV
           fi
       ######################
