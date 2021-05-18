@@ -133,48 +133,56 @@ jobs:
         run: |
           ls -lah . ios/ node_modules/react-native/scripts/
           ls .env
+          cat -n .env
           wc -w .env
 
-      # main build step
-      - name: Build
-        timeout-minutes: 60
-        env:
-          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
-          APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
-          CI_MATCHED_ENV: ${{ env.CI_MATCHED_ENV }}
-          CONNECT_API_KEY_CONTENT: ${{ secrets.CONNECT_API_KEY_CONTENT }}
-          FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
-          GYM_SCHEME: ${{ secrets.GYM_SCHEME }}
-          MAIN_PROJECT: ${{ secrets.MAIN_PROJECT }}
-          MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
-          FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
-          PERFORM_LONG_UPLOAD: ${{ secrets.PERFORM_LONG_UPLOAD }}
-          TEAM_ID: ${{ secrets.TEAM_ID }}
-          FASTLANE_SKIP_UPDATE_CHECK: 1
-        run: |
-          export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-          cd ios
-          fastlane build_adhoc --verbose
+      ## main build step
+      #- name: Build
+      #  timeout-minutes: 60
+      #  env:
+      #    APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY_ID }}
+      #    APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ISSUER_ID }}
+      #    APP_IDENTIFIER: ${{ secrets.APP_IDENTIFIER }}
+      #    CI_MATCHED_ENV: ${{ env.CI_MATCHED_ENV }}
+      #    CONNECT_API_KEY_CONTENT: ${{ secrets.CONNECT_API_KEY_CONTENT }}
+      #    FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+      #    GYM_SCHEME: ${{ secrets.GYM_SCHEME }}
+      #    MAIN_PROJECT: ${{ secrets.MAIN_PROJECT }}
+      #    MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
+      #    FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
+      #    PERFORM_LONG_UPLOAD: ${{ secrets.PERFORM_LONG_UPLOAD }}
+      #    TEAM_ID: ${{ secrets.TEAM_ID }}
+      #    FASTLANE_SKIP_UPDATE_CHECK: 1
+      #  run: |
+      #    export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+      #    cd ios
+      #    fastlane build_adhoc --verbose
 
-      # save xcode output since it's not printed to stdout
-      - name: Save build log
+      # # save xcode output since it's not printed to stdout
+      # - name: Save build log
+      #   if: ${{ always() }}
+      #   uses: actions/upload-artifact@v2
+      #   continue-on-error: true
+      #   with:
+      #     name: build-logs
+      #     path: ios/.build_logs
+
+      # # save build artifacts
+      # - name: Save build artifacts
+      #   if: ${{ always() }}
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: build-artifacts
+      #     path: |
+      #       ios/*.ipa
+      #       ios/*.dSYM.zip
+
+      - name: Save env
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
-        continue-on-error: true
         with:
-          name: build-logs
-          path: ios/.build_logs
-
-      # save build artifacts
-      - name: Save build artifacts
-        if: ${{ always() }}
-        uses: actions/upload-artifact@v2
-        with:
-          name: build-artifacts
-          path: |
-            ios/*.ipa
-            ios/*.dSYM.zip
+          name: env-vars
+          path: .env
 
       # remove temporary keychain
       - name: Clean up cert
