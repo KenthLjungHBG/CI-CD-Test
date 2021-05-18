@@ -29,16 +29,11 @@ Print the changelog
 ----
 
 ## iOS
-### ios update_app_version_numbers
+### ios build_adhoc
 ```
-fastlane ios update_app_version_numbers
+fastlane ios build_adhoc
 ```
-Update app version number and build number based on branch name following semantic versioning (falls back to highest of latest testflight vs xcode project version)
-### ios build
-```
-fastlane ios build
-```
-Build the app with correct distribution signing
+Build an ad-hoc ipa
 ### ios beta
 ```
 fastlane ios beta
