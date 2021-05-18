@@ -179,6 +179,7 @@ platform :ios do
 
         build_app(
           silent: false,
+          export_method: adhoc ? "ad-hoc" : "app-store",
           suppress_xcode_output: true,
           include_symbols: true,
           include_bitcode: true,
