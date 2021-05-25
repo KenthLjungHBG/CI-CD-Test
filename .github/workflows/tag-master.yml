@@ -9,6 +9,13 @@ on:
     types:
       - closed
 
+  workflow_dispatch:
+    inputs:
+      mockHeadRef:
+        description: 'HEAD ref to use'
+        default: 'release/0.0.0+tag-test'
+        required: true
+
 jobs:
   tag:
     name: Tag master branch
@@ -31,7 +38,7 @@ jobs:
       - name: Echo
         env:
           GIT_BASE_REF: ${{ github.base_ref }}
-          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_HEAD_REF: ${{ github.event.inputs.mockHeadRef || github.head_ref }}
           GIT_REF: ${{ github.ref }}
         run: |
           echo GIT_BASE_REF=$GIT_BASE_REF
@@ -42,7 +49,7 @@ jobs:
 
       - name: Tag
         env:
-          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_HEAD_REF: ${{ github.event.inputs.mockHeadRef || github.head_ref }}
         run:  |
           export GIT_TAG_TO_SET=$(echo $GIT_HEAD_REF | awk -F/ '{print $NF}')
           cd ios
