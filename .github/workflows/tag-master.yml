@@ -15,6 +15,9 @@ on:
         description: 'HEAD ref to use'
         default: 'release/0.0.0+tag-test'
         required: true
+      anotherInput:
+        description: 'test'
+      aThirdInput:
 
 jobs:
   tag:
