@@ -1,4 +1,4 @@
-# Workflow for tagging the master branch when 
+# Workflow for tagging a branch with semver
 
 name: Tag master branch
 
@@ -9,11 +9,18 @@ on:
     types:
       - closed
 
+  workflow_dispatch:
+    inputs:
+      mockHeadRef:
+        description: 'HEAD ref to use'
+        default: 'release/0.0.0+tag-test'
+        required: true
+
 jobs:
   tag:
     name: Tag master branch
     environment: production
-    if: ${{ github.event.pull_request.merged == true }}
+    if: ${{ github.event.inputs.mockHeadRef != null || github.event.pull_request.merged == true }}
     runs-on: ubuntu-20.04
 
     steps:
@@ -25,13 +32,13 @@ jobs:
 
       - name: Setup Git identity
         run: |
-          git config --global user.email "81566071+KenthLjungHBG@users.noreply.github.com"
-          git config --global user.name "Github Actions [bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
 
       - name: Echo
         env:
           GIT_BASE_REF: ${{ github.base_ref }}
-          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_HEAD_REF: ${{ github.event.inputs.mockHeadRef || github.head_ref }}
           GIT_REF: ${{ github.ref }}
         run: |
           echo GIT_BASE_REF=$GIT_BASE_REF
@@ -42,7 +49,7 @@ jobs:
 
       - name: Tag
         env:
-          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_HEAD_REF: ${{ github.event.inputs.mockHeadRef || github.head_ref }}
         run:  |
           export GIT_TAG_TO_SET=$(echo $GIT_HEAD_REF | awk -F/ '{print $NF}')
           cd ios

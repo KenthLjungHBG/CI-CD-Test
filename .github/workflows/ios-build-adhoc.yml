@@ -1,14 +1,8 @@
-# Workflow for building and uploading a production-ready Testflight build
+# Workflow for building an ad-hoc build
 
-name: iOS - Build
+name: iOS - Build (Ad Hoc)
 
 on:
-  push:
-    branches:
-      # any commit to a release branch will trigger a new build
-      - release/**
-      - master
-
   workflow_dispatch:
     inputs:
       forcedVersion:
@@ -24,7 +18,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build and upload production ipa to TestFlight
+    name: Build ad-hoc .ipa
     environment: production
 
     runs-on: macos-10.15
@@ -139,8 +133,6 @@ jobs:
         run: |
           ls -lah . ios/ node_modules/react-native/scripts/
           ls .env
-          git diff yarn.lock
-          yarn list
 
       # main build step
       - name: Build
@@ -162,7 +154,7 @@ jobs:
         run: |
           export CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           cd ios
-          fastlane beta --verbose
+          fastlane build_adhoc --verbose
 
       # save xcode output since it's not printed to stdout
       - name: Save build log
@@ -172,6 +164,16 @@ jobs:
         with:
           name: build-logs
           path: ios/.build_logs
+
+      # save build artifacts
+      - name: Save build artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: build-artifacts
+          path: |
+            ios/*.ipa
+            ios/*.dSYM.zip
 
       # remove temporary keychain
       - name: Clean up cert
