@@ -1,4 +1,4 @@
-# Workflow for tagging the master branch when 
+# Workflow for tagging a branch with semver
 
 name: Tag master branch
 
