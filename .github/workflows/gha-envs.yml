@@ -25,5 +25,5 @@ jobs:
           GIT_REF: ${{ github.ref }}
         run: |
           git branch
-          git fetch
+          git fetch -a
           git branch
