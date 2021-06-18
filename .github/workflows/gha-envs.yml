@@ -1,0 +1,31 @@
+name: gha envs
+
+on:
+  pull_request:
+
+  workflow_dispatch:
+
+jobs:
+  smoke-tests:
+    name: GHA Envs
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: echo if base ref
+        if: ${{ github.base_ref }}
+        run: echo "hello!!"
+
+      - name: lint check
+        if: ${{ github.base_ref && github.head_ref }}
+        env:
+          GIT_BASE_REF: ${{ github.base_ref }}
+          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_REF: ${{ github.ref }}
+        run: |
+          git diff --name-only --diff-filter=d origin/$GIT_BASE_REF HEAD

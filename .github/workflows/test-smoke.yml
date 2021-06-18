@@ -17,6 +17,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: echo if base ref
+        if: ${{ github.base_ref }}
+        run: echo "hello!!"
+
       # yarn / node modules
       - name: Get yarn cache directory path
         id: yarn-cache-dir-path
@@ -39,4 +43,3 @@ jobs:
       # run tests
       - name: run tests
         run: yarn test
-        
