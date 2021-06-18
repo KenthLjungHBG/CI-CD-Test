@@ -17,6 +17,10 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: echo if base ref
+        if: ${{ github.base_ref }}
+        run: echo "hello!!"
+
       - name: lint check
         if: ${{ github.base_ref && github.head_ref }}
         env:
