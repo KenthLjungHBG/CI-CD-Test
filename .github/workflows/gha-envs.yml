@@ -23,7 +23,7 @@ jobs:
           GIT_REF: ${{ github.ref }}
         run: |
           git branch
-          git fetch -a
+          git fetch -a --unshallow
           git branch
           git diff --name-only --diff-filter=d origin/develop HEAD
           git diff --name-only --diff-filter=d develop HEAD
