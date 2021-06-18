@@ -24,4 +24,4 @@ jobs:
           GIT_HEAD_REF: ${{ github.head_ref }}
           GIT_REF: ${{ github.ref }}
         run: |
-          git diff --name-only --diff-filter=d origin/$GIT_BASE_REF $GIT_HEAD_REF
+          git diff --name-only --diff-filter=d origin/$GIT_BASE_REF HEAD
