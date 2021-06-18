@@ -25,6 +25,6 @@ jobs:
           git branch
           git fetch -a
           git branch
-          git diff --name-only --diff-filter=d develop HEAD
           git diff --name-only --diff-filter=d origin/develop HEAD
+          git diff --name-only --diff-filter=d develop HEAD
           git diff --name-only --diff-filter=d $GIT_BASE_REF $GIT_HEAD_REF
