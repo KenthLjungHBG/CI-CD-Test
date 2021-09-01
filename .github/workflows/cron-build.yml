@@ -1,0 +1,53 @@
+on:
+  schedule:
+    # mon-fri 04:00 (am)
+    -cron: '0 4 * * 1-5'
+
+  workflow_dispatch:
+
+jobs:
+  main:
+    runs-on: ubuntu-20.04
+
+    steps:
+      # check if there are changes since last build
+      - name: Check
+        id: check
+        run: |
+          current_sha=$(git log -1 --format=%H HEAD)
+          current_timestamp=$(date -u +%s)
+          last_nightly_sha=$(git rev-list -n 1 nightly 2> /dev/null)
+          last_nightly_timestamp=$(git log -1 --date=unix --format=%ad nightly 2> /dev/null)
+
+          echo "current_sha: $current_sha"
+          echo "last_nightly_sha: $last_nightly_sha"
+          echo "current_timestamp: $current_timestamp"
+          echo "last_nightly_timestamp: $last_nightly_timestamp"
+          echo 
+
+          if [ -n "$last_nightly_sha" ]
+          then
+              if [ "$current_sha" != "$_last_nightly_sha" ]
+              then
+                  if [ "$current_timestamp" -gt "$last_nightly_timestamp" ]
+                  then
+                      echo "::set-output name=should_build::true"
+                  else
+                      echo "nightly build is never than HEAD"
+                  fi
+              else
+                  echo "no changes since last nightly build"
+              fi
+          else
+              echo "no previous nightly build found"
+          fi
+
+      # Send a repository dispatch (if we should build)
+      - name: Dispatch Build
+        if: ${{ steps.check.outputs.should_build == 'true' }}
+        uses: peter-evans/repository-dispatch@v1
+        with:
+          token: ${{ secrets.REPO_ACCESS_TOKEN }}
+          repository: ${{ github.repository }}
+          event-type: deploy
+          client-payload: '{"tags": ["nightly"]}'
