@@ -1,0 +1,28 @@
+name: test vars
+
+on:
+  push:
+  workflow_dispatch:
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Test
+        timeout-minutes: 60
+        env:
+          GIT_BASE_REF: ${{ github.base_ref }}
+          GIT_HEAD_REF: ${{ github.head_ref }}
+          GIT_REF: ${{ github.ref }}
+          GIT_EVENT_NAME: ${{ github.event_name }}
+          GIT_MERGED: ${{ github.event.pull_request.merged }}
+        run: |
+          echo base_ref=$GIT_BASE_REF
+          echo head_ref=$GIT_HEAD_REF
+          echo ref=$GIT_REF
+          echo event_name=$GIT_EVENT_NAME
+          echo pull_request.merged=$GIT_MERGED
