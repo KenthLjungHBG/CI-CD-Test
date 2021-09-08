@@ -7,18 +7,24 @@ on:
     branches:
       # any commit to a release branch will trigger a new build
       - release/**
+  pull_request:
+    branches:
       - master
+    types:
+      - closed
 
   workflow_dispatch:
     inputs:
       forcedVersion:
         description: Force Version Number String
+      forcedBuildNumber:
+        description: Force Build Number
       forcedEnvironment:
         description: Force environment used for .env file content
 
-# prevents multiple build workflows from running 
+# prevents multiple build workflows from running
 # (in-progress and queued will be cancelled in favor of pending)
-concurrency: 
+concurrency:
   group: ${{ github.ref }}
   cancel-in-progress: true
 
@@ -26,8 +32,8 @@ jobs:
   build:
     name: Build and upload production ipa to TestFlight
     environment: production
-
     runs-on: macos-10.15
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.merged == true }}
 
     env:
       CERT_KEYCHAIN_PASSWORD: ${{ secrets.CERT_KEYCHAIN_PASSWORD }}
@@ -37,7 +43,6 @@ jobs:
       # checkout the repo
       - name: Checkout
         uses: actions/checkout@v2
-
 
       ######################
       # Set .env file vars (develop/release/production)
@@ -74,7 +79,6 @@ jobs:
       ######################
       # END Set .env file vars (develop/release/production)
       ######################
-
 
       # get the yarn cache dir and pipe it to the next step
       - name: Get yarn cache directory path
@@ -152,10 +156,12 @@ jobs:
           CI_MATCHED_ENV: ${{ env.CI_MATCHED_ENV }}
           CONNECT_API_KEY_CONTENT: ${{ secrets.CONNECT_API_KEY_CONTENT }}
           FASTLANE_PASSWORD: ${{ secrets.FASTLANE_PASSWORD }}
+          FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
+          FORCED_BUILD_NUMBER: ${{ github.event.inputs.forcedBuildNumber }}
+          GIT_HEAD_REF: ${{ github.head_ref }}
           GYM_SCHEME: ${{ secrets.GYM_SCHEME }}
           MAIN_PROJECT: ${{ secrets.MAIN_PROJECT }}
           MAIN_WORKSPACE: ${{ secrets.MAIN_WORKSPACE }}
-          FORCED_VERSION_NUMBER_STRING: ${{ github.event.inputs.forcedVersion }}
           PERFORM_LONG_UPLOAD: ${{ secrets.PERFORM_LONG_UPLOAD }}
           TEAM_ID: ${{ secrets.TEAM_ID }}
           FASTLANE_SKIP_UPDATE_CHECK: 1
@@ -176,6 +182,6 @@ jobs:
       # remove temporary keychain
       - name: Clean up cert
         if: ${{ always() }}
-        run:  |
+        run: |
           CERT_KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
           security delete-keychain $CERT_KEYCHAIN_PATH

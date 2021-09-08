@@ -10,6 +10,9 @@
 #     https://docs.fastlane.tools/plugins/available-plugins
 #
 
+# official semver regex from https://semver.org/, modified to optionally accept a branch name with forward slash before the semver
+$semver_regex = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
+  
 default_platform(:ios)
 
 
@@ -37,24 +40,48 @@ def get_changelog()
 end
 
 
-def get_semver_from_branch(with_meta=false)
+def extract_version_number_from_name(ref_name, with_meta=false)
 
-  # official semver regex from https://semver.org/, slightly modified for branch names
-  semver_regex = /^(?:.+?\/)?v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$/
-  
-  branch = git_branch
-  puts "branch=#{branch}"
-
-  if m = branch.match(semver_regex)
-    version_string = with_meta ? (branch.split('/')[1] || branch) : m.captures[0, 3].join(".")
-    puts "extracted semantic version number from branch name \"#{branch}\" = #{m.captures.join(" ")}"
+  if m = ref_name.match($semver_regex)
+    version_string = with_meta ? (ref_name.split('/')[1] || ref_name) : m.captures[0, 3].join(".")
+    puts "extracted semantic version number from branch/ref name \"#{ref_name}\" = #{m.captures.join(" ")}"
     puts "formatted = #{version_string}"
     return version_string
-  else
-    puts "unable to determine semantic version from branch name \"#{branch}\""
-    return nil
   end
+
+  return nil
+
+end
+
+
+def get_semver_from_branch(with_meta=false)
+
+  branch = git_branch
+  puts "branch=\"#{branch}\""
+
+  version_string = extract_version_number_from_name(branch, with_meta)
+
+  if version_string != nil && !version_string.empty?
+    return version_string
+  else
+    head_ref = ENV["GIT_HEAD_REF"]
     
+    if head_ref != nil && !head_ref.empty?
+      puts "head_ref=\"#{head_ref}\""
+      version_string = extract_version_number_from_name(head_ref, with_meta)
+
+      if version_string != nil && !version_string.empty?
+        return version_string
+      else
+        puts "unable to determine semantic version from either head ref \"#{head_ref}\" or branch name \"#{branch}\""
+      end
+    else
+      puts "unable to determine semantic version from branch name \"#{branch}\""
+    end
+  end
+
+  return nil
+
 end
 
 
@@ -237,9 +264,44 @@ platform :ios do
     end
 
     # increment build number
-    current_build_number = latest_testflight_build_number(version: version_string)
-    build_number = current_build_number + 1
-    increment_build_number(build_number: build_number)
+    forced_build_number = ENV["FORCED_BUILD_NUMBER"]
+    unless forced_build_number == nil || forced_build_number.empty?
+      puts "using forced build number \"#{forced_build_number}\""
+      build_number = forced_build_number
+      increment_build_number(build_number: build_number)
+    else
+      current_build_number = latest_testflight_build_number(version: version_string, initial_build_number: 0)
+
+      if current_build_number == 0
+        if m = version_string.match($semver_regex)
+          # if no existing number was found we need to check variations of the same version
+          # since Apple handles 1, 1.0, and 1.0.0 independently, but they share build number
+          puts "build number is 0 - checking version variations in case there's a match"
+
+          major = m.captures[0]
+          minor = m.captures[1]
+          patch = m.captures[2]
+
+          if patch == "0"
+            variation = "#{major}.#{minor}"
+            current_build_number = latest_testflight_build_number(version: variation, initial_build_number: 0)
+            puts "variation \"#{variation}\" = #{current_build_number}"
+          end
+
+          if current_build_number == 0 && minor == "0"
+            variation = major
+            current_build_number = latest_testflight_build_number(version: variation, initial_build_number: 0)
+            puts "variation \"#{variation}\" = #{current_build_number}"
+          end
+        else
+          UI.important "build number is 0 and version is not semantically correct - unable to check version variations (build number may be incorrect)"
+        end
+        
+      end
+
+      build_number = current_build_number + 1
+      increment_build_number(build_number: build_number)
+    end
 
     # set version number
     current_version_string = xcode_project_version || get_project_xcode_version
